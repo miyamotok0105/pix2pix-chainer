@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os import listdir
 from os.path import join
 from chainer.dataset import dataset_mixin

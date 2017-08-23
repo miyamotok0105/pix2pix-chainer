@@ -1,7 +1,6 @@
+# -*- coding: utf-8 -*-
 from os.path import join
-
 from dataset import DatasetFromFolder
-
 
 def get_training_set(root_dir):
     train_dir = join(root_dir, "train")

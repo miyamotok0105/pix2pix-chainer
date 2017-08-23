@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env python
 #python train.py
-# python train.py -g 0 -i ./facade/base --out result_facade --snapshot_interval 10000
+#python train.py -g 0
 #ハマるエラー３種
 #shape
 #ndim
@@ -60,10 +61,10 @@ print('===> Building model')
 encoderdecoder_model = EncoderDecoder(args.input_nc, args.output_nc, args.ngf)
 discriminator_model = Discriminator(args.input_nc, args.output_nc, args.ngf)
 
-# if args.gpu >= 0:
-#     chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
-#     netG.to_gpu()
-#     netD.to_gpu()
+if args.gpu >= 0:
+    chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
+    encoderdecoder_model.to_gpu()
+    discriminator_model.to_gpu()
 
 
 optimizer_encoderdecoder = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5)
