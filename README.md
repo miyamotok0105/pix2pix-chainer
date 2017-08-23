@@ -26,6 +26,7 @@ cd pix2pix-chainer
 
 ```
 unzip dataset/facades.zip
+mv facades/ dataset
 ```
 
 
@@ -33,6 +34,8 @@ unzip dataset/facades.zip
 
 ```
 python train.py
+or
+python train.py -g 0
 ```
 
 
