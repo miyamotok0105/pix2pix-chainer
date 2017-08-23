@@ -18,22 +18,30 @@ chainer implementation of [Image-to-Image Translation Using Conditional Adversar
 
 + Clone this repo:
 
-    git clone https://github.com/miyamotok0105/pix2pix-chainer.git
-    
-    cd pix2pix-chainer
-
+```
+git clone https://github.com/miyamotok0105/pix2pix-chainer.git
+cd pix2pix-chainer
+```
 
 + Get dataset
 
-    unzip dataset/facades.zip
+```
+unzip dataset/facades.zip
+```
+
 
 + Train the model:
 
-    python train.py
+```
+python train.py
+```
+
 
 + Test the model:
 
-    TODO
+```
+TODO
+```
 
 
 
