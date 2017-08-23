@@ -75,12 +75,12 @@ optimizer_discriminator.setup(discriminator_model)
 if args.gpu >= 0:
     xp = cuda.cupy
     label = xp.random.randn(args.batchsize)
-    real_label = xp.ones((1,1,30,30), dtype=xp.float32)
-    fake_label = xp.zeros((1,1,30,30), dtype=xp.float32)    
+    real_label = Variable(xp.ones((1,1,30,30), dtype=xp.float32))
+    fake_label = Variable(xp.zeros((1,1,30,30), dtype=xp.float32))
 else:
     label = np.random.randn(args.batchsize)
-    real_label = np.ones((1,1,30,30), dtype=np.float32)
-    fake_label = np.zeros((1,1,30,30), dtype=np.float32)
+    real_label = Variable(np.ones((1,1,30,30), dtype=np.float32))
+    fake_label = Variable(np.zeros((1,1,30,30), dtype=np.float32))
 
 def train(epoch):
     for iteration, batch in enumerate(train_set, 1):

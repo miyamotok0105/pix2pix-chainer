@@ -12,6 +12,7 @@ chainer implementation of [Image-to-Image Translation Using Conditional Adversar
 + Linux
 + Python with numpy
 + chainer
++ todo:gpu対応
 
 ## Getting Started
 
