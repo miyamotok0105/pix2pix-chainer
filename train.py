@@ -62,20 +62,25 @@ encoderdecoder_model = EncoderDecoder(args.input_nc, args.output_nc, args.ngf)
 discriminator_model = Discriminator(args.input_nc, args.output_nc, args.ngf)
 
 if args.gpu >= 0:
+    print("use gpu")
     chainer.cuda.get_device(args.gpu).use()  # Make a specified GPU current
     encoderdecoder_model.to_gpu()
     discriminator_model.to_gpu()
-
 
 optimizer_encoderdecoder = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5)
 optimizer_encoderdecoder.setup(encoderdecoder_model)
 optimizer_discriminator = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5)
 optimizer_discriminator.setup(discriminator_model)
 
-label = np.random.randn(args.batchsize)
-real_label = np.ones((1,1,30,30), dtype=np.float32)
-fake_label = np.zeros((1,1,30,30), dtype=np.float32)
-
+if args.gpu >= 0:
+    xp = cuda.cupy
+    label = xp.random.randn(args.batchsize)
+    real_label = xp.ones((1,1,30,30), dtype=xp.float32)
+    fake_label = xp.zeros((1,1,30,30), dtype=xp.float32)    
+else:
+    label = np.random.randn(args.batchsize)
+    real_label = np.ones((1,1,30,30), dtype=np.float32)
+    fake_label = np.zeros((1,1,30,30), dtype=np.float32)
 
 def train(epoch):
     for iteration, batch in enumerate(train_set, 1):
@@ -84,7 +89,11 @@ def train(epoch):
         ###########################
         # train with real
         discriminator_model.zerograds()
-        real_A, real_B = np.asarray(batch[0], dtype=np.float32) / 255.0, np.asarray(batch[1], dtype=np.float32) / 255.0
+        
+        if args.gpu >= 0:
+            real_A, real_B = xp.asarray(batch[0], dtype=xp.float32) / 255.0, xp.asarray(batch[1], dtype=xp.float32) / 255.0
+        else:
+            real_A, real_B = np.asarray(batch[0], dtype=np.float32) / 255.0, np.asarray(batch[1], dtype=np.float32) / 255.0
         real_A = real_A.transpose(2, 0, 1)
         real_B = real_B.transpose(2, 0, 1)
         real_A = real_A.reshape(1,3,256,256)
@@ -114,9 +123,11 @@ def train(epoch):
         optimizer_encoderdecoder.update()
 
         print("===> Epoch[{}]({}/{}): Loss_D: {} Loss_G: {} ".format(
-            epoch, iteration, len(train_set), err_d.data, err_g.data)
-        )
+            epoch, iteration, len(train_set), err_d.data, err_g.data))
 
+        # if args.snapshot_interval % epoch == 0:
+        if args.snapshot_interval % epoch == 0:
+            print("save")
 
 def loss_criterion(output, label, lam1=100, lam2=1):
     loss = lam1*(F.mean_absolute_error(output, label))
