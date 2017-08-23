@@ -126,8 +126,8 @@ def train(epoch):
             epoch, iteration, len(train_set), err_d.data, err_g.data))
 
         if args.snapshot_interval % epoch == 0:
-            serializers.save_npz("encoderdecoder_model_"+epoch, encoderdecoder_model)
-            serializers.save_npz("discriminator_model_"+epoch, discriminator_model)
+            serializers.save_npz("encoderdecoder_model_"+str(epoch), encoderdecoder_model)
+            serializers.save_npz("discriminator_model_"+str(epoch), discriminator_model)
 
 def loss_criterion(output, label, lam1=100, lam2=1):
     loss = lam1*(F.mean_absolute_error(output, label))
