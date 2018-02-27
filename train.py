@@ -39,7 +39,6 @@ parser.add_argument('--input_nc', type=int, default=3, help='input image channel
 parser.add_argument('--output_nc', type=int, default=3, help='output image channels')
 parser.add_argument('--ngf', type=int, default=64, help='generator filters in first conv layer')
 parser.add_argument('--ndf', type=int, default=64, help='discriminator filters in first conv layer')
-parser.add_argument('--lamb', type=int, default=100, help='weight on L1 term in objective')
 args = parser.parse_args()
 
 print('GPU: {}'.format(args.gpu))
@@ -104,21 +103,26 @@ def train(epoch):
         output = discriminator_model(F.concat((real_A, real_B), axis=1))
 
         label = (real_label)
+        # print("=> err_d_real")
         err_d_real = loss_dis(output, label)
         err_d_real.backward()
         fake_b = encoderdecoder_model(real_A)
         output = discriminator_model(F.concat((real_A, fake_b), axis=1))
         label = (fake_label)
+        # print("=> err_d_fake")
         err_d_fake = loss_dis(output, label)
         err_d_fake.backward()
         err_d = (err_d_real + err_d_fake) / 2.0
+        # print("err_d_real: ", err_d_real)
+        # print("err_d_fake: ", err_d_fake)
+        # print("(err_d_real + err_d_fake) / 2.0 ", (err_d_real + err_d_fake) / 2.0)
         optimizer_discriminator.update()
         ############################
         # (2) Update G network: maximize log(D(x,G(x))) + L1(y,G(x))
         ###########################
         output = discriminator_model(F.concat((real_A, fake_b), axis=1))
         label = (real_label)
-        err_g = loss_criterion(output, label) + args.lamb * loss_criterion_l1(fake_b, real_B)
+        err_g = loss_criterion(output, label) + loss_criterion_l1(fake_b, real_B)
         err_g.backward()
         optimizer_encoderdecoder.update()
 
@@ -130,13 +134,18 @@ def train(epoch):
             serializers.save_npz("discriminator_model_"+str(epoch), discriminator_model)
 
 def loss_criterion(output, label, lam1=100, lam2=1):
-    loss = lam1*(F.mean_absolute_error(output, label))
+    print("===loss_criterion===")
+    loss = (F.mean_absolute_error(output, label))
     return loss
 
 def loss_criterion_l1(y_out, t_out, lam1=100, lam2=1):
-    batchsize,_,w,h = list(y_out.data.shape)
-    loss_rec = lam1*(F.mean_absolute_error(y_out, t_out))
+    print("===loss_criterion_l1===")
+    # batchsize,_,w,h = list(y_out.data.shape)
+    batchsize,_,w,h = y_out.data.shape
+    loss_rec = (F.mean_absolute_error(y_out, t_out))
+    # print("loss_rec:", loss_rec)
     loss_adv = lam2*F.sum(F.softplus(-y_out)) / batchsize / w / h
+    # print("loss_adv:", loss_adv)
     loss = loss_rec + loss_adv
     return loss
 
@@ -145,6 +154,7 @@ def loss_dis(y_in, y_out):
     L1 = F.sum(F.softplus(-y_in)) / batchsize / w / h
     L2 = F.sum(F.softplus(y_out)) / batchsize / w / h
     loss = L1 + L2
+    # print("loss_dis:", loss)
     return loss
 
 for epoch in range(1, args.epoch + 1):

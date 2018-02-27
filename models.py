@@ -118,6 +118,9 @@ class Discriminator(chainer.Chain):
         h5 = self.disconv5(F.leaky_relu(h4))
         # state size is (ndf) x 30 x 30, corresponds to 70 x 70 receptive
         output = F.sigmoid(h5)
+        
+        # print(output)
+        print(output.shape)
         return output
 
 
